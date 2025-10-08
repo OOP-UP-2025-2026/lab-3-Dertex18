@@ -1,69 +1,80 @@
 package org.example.task2;
 
-import java.util.Arrays;
-
 public class Cart {
 
-    public Item[] contents;
-    int index;
+    // Приватні поля
+    private Item[] items;
+    private int count;
 
-    Cart(Item[] _contents) {
-        this.contents = _contents;
+    // Конструктор
+    public Cart(int capacity) {
+        this.items = new Item[capacity];
+        this.count = 0;
     }
 
-    public void removeById(int itemIndex) {
-
-        if (index == 0)
-            return;
-
-        int foundItemIndex = findItemInArray(contents[itemIndex]);
-
-        if (foundItemIndex == -1)
-            return;
-
-        if (foundItemIndex == index - 1) {
-            contents[index - 1] = null;
-            index--;
-            return;
+    // Метод для додавання товару
+    public void add(Item item) {
+        if (this.count < this.items.length) {
+            this.items[this.count] = item;
+            this.count++;
+        } else {
+            System.out.println("Неможливо додати товар: кошик повний!");
         }
-
-        shiftArray(foundItemIndex);
     }
 
-    public void shiftArray(int itemIndex) {
-        for (int i = itemIndex; i < index - 1; i++) {
-            contents[i] = contents[i + 1];
-        }
-        contents[index-1] = null;
-        index--;
-    }
-
-    public int findItemInArray(Item item) {
-        for (int i = 0; i < index; i++) {
-            if (contents[i].id == item.id) {
-                return i;
+    // Метод для видалення товару за id
+    public void removeById(long id) {
+        int pos = -1;
+        for (int i = 0; i < this.count; i++) {
+            if (this.items[i].getId() == id) {
+                pos = i;
+                break;
             }
         }
 
-        return -1;
+        if (pos != -1) {
+            for (int i = pos; i < this.count - 1; i++) {
+                this.items[i] = this.items[i + 1];
+            }
+            this.items[this.count - 1] = null;
+            this.count--;
+            System.out.println("Товар з id " + id + " видалено з кошика.");
+        } else {
+            System.out.println("Товар з id " + id + " не знайдено.");
+        }
     }
 
-    void add(Item item) {
-        if (isCartFull())
-            return;
-
-        contents[index] = item;
-        index++;
+    // Метод для отримання кількості елементів
+    public int getCount() {
+        return this.count;
     }
 
-    public boolean isCartFull() {
-        return index == contents.length;
+    // Метод для отримання товару за індексом
+    public Item getItem(int index) {
+        if (index >= 0 && index < this.count) {
+            return this.items[index];
+        }
+        return null;
+    }
+
+    // Метод для обчислення загальної вартості
+    public double getTotalPrice() {
+        double sum = 0.0;
+        for (int i = 0; i < this.count; i++) {
+            sum += this.items[i].getPrice();
+        }
+        return sum;
     }
 
     @Override
     public String toString() {
-        return "Cart{" +
-                "contents=" + Arrays.toString(contents) +
-                '}' + "\n";
+        StringBuilder builder = new StringBuilder("Cart:\n");
+        for (int i = 0; i < this.count; i++) {
+            builder.append(this.items[i].toString());
+        }
+        builder.append("------------------\n");
+        builder.append("Кількість товарів: ").append(this.count).append("\n");
+        builder.append("Загальна сума: ").append(this.getTotalPrice()).append("\n");
+        return builder.toString();
     }
 }
